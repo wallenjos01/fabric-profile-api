@@ -10,7 +10,22 @@ plugins {
     id("com.gradleup.shadow")
 }
 
+sourceSets {
+    register("testmod") {
+
+        val main = sourceSets.main.get()
+
+        compileClasspath += main.compileClasspath
+        runtimeClasspath += main.runtimeClasspath
+    }
+}
+
 loom {
+    mods {
+        register(project.name + "-testmod") {
+            sourceSet(sourceSets["testmod"])
+        }
+    }
     runs {
         getByName("client") {
             runDir = "run/client"
@@ -22,10 +37,28 @@ loom {
             ideConfigGenerated(false)
             server()
         }
+        register("testmodClient") {
+            client()
+            ideConfigGenerated(false)
+            runDir = "run/testclient"
+            name = "Testmod Client"
+            source(sourceSets.getByName("testmod"))
+        }
+        register("testmodServer") {
+            server()
+            ideConfigGenerated(false)
+            runDir = "run/testserver"
+            name = "Testmod Server"
+            source(sourceSets.getByName("testmod"))
+        }
     }
     mixin {
         defaultRefmapName = "${rootProject.name}.refmap.json"
     }
+}
+
+dependencies {
+    "testmodImplementation"(sourceSets.main.get().output)
 }
 
 val archiveName = Utils.getArchiveName(project, rootProject)

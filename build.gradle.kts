@@ -7,16 +7,6 @@ plugins {
 
 Utils.setupResources(project, rootProject, "fabric.mod.json")
 
-sourceSets {
-    register("testmod") {
-
-        val main = sourceSets.main.get()
-
-        compileClasspath += main.compileClasspath
-        runtimeClasspath += main.runtimeClasspath
-    }
-}
-
 dependencies {
 
     minecraft("com.mojang:minecraft:${project.properties["minecraft-version"]}")
@@ -34,24 +24,6 @@ dependencies {
 
     compileOnly(libs.jetbrains.annotations)
 
-    "testmodRuntimeOnly"("org.wallentines:databridge:0.7.0")
-    "testmodImplementation"(sourceSets.main.get().output)
+    modImplementation("org.wallentines:databridge:0.7.0")
 }
 
-
-loom {
-    mods {
-        register(project.name + "-testmod") {
-            sourceSet(sourceSets["testmod"])
-        }
-    }
-    runs {
-        register("testmodServer") {
-            server()
-            ideConfigGenerated(false)
-            runDir = "run/testserver"
-            name = "Testmod Server"
-            source(sourceSets.getByName("testmod"))
-        }
-    }
-}
