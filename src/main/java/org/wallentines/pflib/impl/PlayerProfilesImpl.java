@@ -1,6 +1,8 @@
 package org.wallentines.pflib.impl;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -14,20 +16,45 @@ import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class PlayerProfilesImpl {
 
     public static void setPlayerProfile(ServerPlayer player, GameProfile profile) {
-        ((PlayerExtension) player).setProfile(profile);
+        ((PlayerExtension) player).patchProfile(ProfilePatch.fromProfile(profile));
     }
 
     public static void resetPlayerProfile(ServerPlayer player) {
+        ((PlayerExtension) player).patchProfile(ProfilePatch.EMPTY);
+    }
+
+    public static void setPlayerName(ServerPlayer player, String value) {
         PlayerExtension ext = (PlayerExtension) player;
-        ext.setProfile(ext.getLoginProfile());
+        ProfilePatch existing = ext.getProfilePatch();
+        ext.patchProfile(new ProfilePatch(Optional.of(value), existing.properties()));
+    }
+
+    public static void resetPlayerName(ServerPlayer player) {
+        PlayerExtension ext = (PlayerExtension) player;
+        ProfilePatch existing = ext.getProfilePatch();
+        ext.patchProfile(new ProfilePatch(Optional.empty(), existing.properties()));
+    }
+
+    public static void setPlayerSkin(ServerPlayer player, String value, String signature) {
+
+        PlayerExtension ext = (PlayerExtension) player;
+        ProfilePatch existing = ext.getProfilePatch();
+
+        PropertyMap map = new PropertyMap();
+        map.put("textures", new Property("textures", value, signature));
+
+        ext.patchProfile(new ProfilePatch(existing.name(), Optional.of(map)));
+    }
+
+    public static void resetPlayerSkin(ServerPlayer player) {
+        PlayerExtension ext = (PlayerExtension) player;
+        ProfilePatch existing = ext.getProfilePatch();
+        ext.patchProfile(new ProfilePatch(existing.name(), Optional.empty()));
     }
 
 

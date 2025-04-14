@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.wallentines.pflib.impl.PartialProfile;
+import org.wallentines.pflib.impl.ProfilePatch;
 import org.wallentines.pflib.impl.PlayerExtension;
 
 @Mixin(Player.class)
@@ -27,6 +27,7 @@ public abstract class MixinPlayer extends LivingEntity {
     @Mutable
     private GameProfile gameProfile;
 
+
     protected MixinPlayer(EntityType<? extends LivingEntity> entityType, Level level) {
         super(entityType, level);
     }
@@ -36,6 +37,10 @@ public abstract class MixinPlayer extends LivingEntity {
     @Unique
     private GameProfile profilelib$loginProfile;
 
+    @Unique
+    private ProfilePatch profilelib$profilePatch;
+
+
     @Inject(method="<init>", at=@At("TAIL"))
     private void onConstruct(Level level, BlockPos blockPos, float f, GameProfile gameProfile, CallbackInfo ci) {
         this.profilelib$loginProfile = gameProfile;
@@ -44,16 +49,16 @@ public abstract class MixinPlayer extends LivingEntity {
     @Inject(method="addAdditionalSaveData", at=@At("TAIL"))
     private void onSave(CompoundTag compoundTag, CallbackInfo ci) {
         if(gameProfile != profilelib$loginProfile) {
-            compoundTag.put("profile", PartialProfile.CODEC.encode(PartialProfile.fromProfile(gameProfile), NbtOps.INSTANCE, new CompoundTag()).getOrThrow());
+            compoundTag.put("profile", ProfilePatch.CODEC.encode(profilelib$profilePatch, NbtOps.INSTANCE, new CompoundTag()).getOrThrow());
         }
     }
 
     @Inject(method="readAdditionalSaveData", at=@At("TAIL"))
     private void onLoad(CompoundTag compoundTag, CallbackInfo ci) {
+        gameProfile = profilelib$loginProfile;
         compoundTag.getCompound("profile").ifPresent(profileTag -> {
             NbtOps ops = NbtOps.INSTANCE;
-            PartialProfile prof = PartialProfile.CODEC.decode(ops, profileTag).map(Pair::getFirst).getOrThrow();
-            gameProfile = prof.toProfile(getUUID());
+            profilelib$patchProfile(ProfilePatch.CODEC.decode(ops, profileTag).map(Pair::getFirst).getOrThrow());
         });
     }
 
@@ -68,13 +73,14 @@ public abstract class MixinPlayer extends LivingEntity {
     }
 
     @Unique
-    public void profilelib$setProfile(GameProfile profile) {
-        if(!profile.getId().equals(getUUID())) {
-            GameProfile newProfile = new GameProfile(getUUID(), profile.getName());
-            newProfile.getProperties().putAll(profile.getProperties());
-            profile = newProfile;
-        }
-        gameProfile = profile;
+    public ProfilePatch profilelib$getProfilePatch() {
+        return profilelib$profilePatch;
+    }
+
+    @Unique
+    public void profilelib$patchProfile(ProfilePatch profile) {
+        profilelib$profilePatch = profile;
+        gameProfile = profile.apply(profilelib$loginProfile);
     }
 
 }

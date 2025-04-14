@@ -8,5 +8,8 @@ public interface PlayerExtension {
 
     void setLoginProfile(GameProfile profile);
 
-    void setProfile(GameProfile profile);
+    ProfilePatch getProfilePatch();
+
+    void patchProfile(ProfilePatch profile);
+
 }

@@ -1,12 +1,11 @@
 package org.wallentines.pflib.api;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
-import com.mojang.authlib.properties.PropertyMap;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.ApiStatus;
 import org.wallentines.pflib.impl.PlayerExtension;
 import org.wallentines.pflib.impl.PlayerProfilesImpl;
+
 
 @ApiStatus.NonExtendable
 public interface PlayerProfiles {
@@ -22,18 +21,33 @@ public interface PlayerProfiles {
     }
 
     /**
+     * Reset the given player's profile to the one they logged in with. Changes will not be synced to clients.
+     * @param player The player to modify
+     * @see PlayerProfiles#refreshPlayer
+     */
+    static void resetPlayerProfile(ServerPlayer player) {
+        PlayerProfilesImpl.resetPlayerProfile(player);
+    }
+
+    /**
      * Changes the given player's username. Changes will not be synced to clients.
      * @param player The player to modify
      * @param name The player's new username
      * @see PlayerProfiles#refreshPlayer
      */
     static void setPlayerName(ServerPlayer player, String name) {
-
-        GameProfile profile = new GameProfile(player.getUUID(), name);
-        profile.getProperties().putAll(player.getGameProfile().getProperties());
-
-        PlayerProfilesImpl.setPlayerProfile(player, profile);
+        PlayerProfilesImpl.setPlayerName(player, name);
     }
+
+    /**
+     * Reset the given player's username to the one they logged in with. Changes will not be synced to clients.
+     * @param player The player to modify
+     * @see PlayerProfiles#refreshPlayer
+     */
+    static void resetPlayerName(ServerPlayer player) {
+        PlayerProfilesImpl.resetPlayerName(player);
+    }
+
 
     /**
      * Changes the given player's skin. Changes will not be synced to clients.
@@ -43,23 +57,16 @@ public interface PlayerProfiles {
      * @see PlayerProfiles#refreshPlayer
      */
     static void setPlayerSkin(ServerPlayer player, String value, String signature) {
-
-        GameProfile existing = player.getGameProfile();
-
-        GameProfile profile = new GameProfile(existing.getId(), existing.getName());
-        PropertyMap properties = profile.getProperties();
-        properties.put("textures", new Property("textures", value, signature));
-
-        setPlayerProfile(player, profile);
+        PlayerProfilesImpl.setPlayerSkin(player, value, signature);
     }
 
     /**
-     * Reset the given player's profile to the one they logged in with. Changes will not be synced to clients.
+     * Reset the given player's skin to the one they logged in with. Changes will not be synced to clients.
      * @param player The player to modify
      * @see PlayerProfiles#refreshPlayer
      */
-    static void resetPlayerProfile(ServerPlayer player) {
-        PlayerProfilesImpl.resetPlayerProfile(player);
+    static void resetPlayerSkin(ServerPlayer player) {
+        PlayerProfilesImpl.resetPlayerSkin(player);
     }
 
     /**

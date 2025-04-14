@@ -1,6 +1,5 @@
 package org.wallentines.pflib.mixin;
 
-import com.mojang.authlib.GameProfile;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,12 +17,7 @@ public class MixinServerPlayer {
         PlayerExtension selfExt = (PlayerExtension) self;
 
         selfExt.setLoginProfile(other.getLoginProfile());
-
-        GameProfile gp = self.getGameProfile();
-        if(gp != self.getGameProfile()) {
-            selfExt.setProfile(player.getGameProfile());
-
-        }
+        selfExt.patchProfile(other.getProfilePatch());
     }
 
 }
