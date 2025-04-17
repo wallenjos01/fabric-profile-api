@@ -44,6 +44,7 @@ public abstract class MixinPlayer extends LivingEntity {
     @Inject(method="<init>", at=@At("TAIL"))
     private void onConstruct(Level level, BlockPos blockPos, float f, GameProfile gameProfile, CallbackInfo ci) {
         this.profilelib$loginProfile = gameProfile;
+        this.profilelib$profilePatch = ProfilePatch.EMPTY;
     }
 
     @Inject(method="addAdditionalSaveData", at=@At("TAIL"))
@@ -56,9 +57,11 @@ public abstract class MixinPlayer extends LivingEntity {
     @Inject(method="readAdditionalSaveData", at=@At("TAIL"))
     private void onLoad(CompoundTag compoundTag, CallbackInfo ci) {
         gameProfile = profilelib$loginProfile;
-        compoundTag.getCompound("profile").ifPresent(profileTag -> {
+        compoundTag.getCompound("profile").ifPresentOrElse(profileTag -> {
             NbtOps ops = NbtOps.INSTANCE;
             profilelib$patchProfile(ProfilePatch.CODEC.decode(ops, profileTag).map(Pair::getFirst).getOrThrow());
+        }, () -> {
+            profilelib$profilePatch = ProfilePatch.EMPTY;
         });
     }
 
