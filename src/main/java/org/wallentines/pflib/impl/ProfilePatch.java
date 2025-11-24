@@ -1,6 +1,8 @@
 package org.wallentines.pflib.impl;
 
+import com.google.common.collect.ImmutableMultimap;
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -13,15 +15,24 @@ public record ProfilePatch(Optional<String> name, Optional<PropertyMap> properti
     public static final ProfilePatch EMPTY = new ProfilePatch(Optional.empty(), Optional.empty());
 
     public static ProfilePatch fromProfile(GameProfile profile) {
-        return new ProfilePatch(Optional.of(profile.getName()), Optional.of(profile.getProperties()));
+        return new ProfilePatch(Optional.of(profile.name()), Optional.of(profile.properties()));
     }
 
     public GameProfile apply(GameProfile existing) {
         if(this == EMPTY) {
             return existing;
         }
-        GameProfile profile = new GameProfile(existing.getId(), name.orElse(existing.getName()));
-        profile.getProperties().putAll(properties.orElse(existing.getProperties()));
+
+        ImmutableMultimap.Builder<String, Property> newProperties = ImmutableMultimap.builder();
+        properties.orElse(existing.properties()).entries().forEach(ent -> {
+            newProperties.put(ent.getKey(), ent.getValue());
+        });
+        
+        GameProfile profile = new GameProfile(
+            existing.id(), 
+            name.orElse(existing.name()),
+            new PropertyMap(newProperties.build()));
+
         return profile;
     }
 

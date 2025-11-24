@@ -1,5 +1,8 @@
 package org.wallentines.pflib.impl;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
@@ -45,8 +48,9 @@ public class PlayerProfilesImpl {
         PlayerExtension ext = (PlayerExtension) player;
         ProfilePatch existing = ext.getProfilePatch();
 
-        PropertyMap map = new PropertyMap();
-        map.put("textures", new Property("textures", value, signature));
+        PropertyMap map = new PropertyMap(ImmutableMultimap.<String, Property>builder()
+            .put("textures", new Property("textures", value, signature))
+            .build());
 
         ext.patchProfile(new ProfilePatch(existing.name(), Optional.of(map)));
     }
@@ -64,7 +68,7 @@ public class PlayerProfilesImpl {
             return;
         }
 
-        MinecraftServer server = spl.getServer();
+        MinecraftServer server = spl.level().getServer();
         if(server == null) {
             return;
         }

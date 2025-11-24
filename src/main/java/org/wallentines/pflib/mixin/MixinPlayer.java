@@ -1,15 +1,15 @@
 package org.wallentines.pflib.mixin;
 
 import com.mojang.authlib.GameProfile;
+
+import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,7 +19,7 @@ import org.wallentines.pflib.impl.PlayerExtension;
 
 @Mixin(Player.class)
 @Implements(@Interface(iface = PlayerExtension.class, prefix = "profilelib$"))
-public abstract class MixinPlayer extends LivingEntity {
+public abstract class MixinPlayer extends Avatar {
 
     @Final
     @Shadow
@@ -29,9 +29,6 @@ public abstract class MixinPlayer extends LivingEntity {
     protected MixinPlayer(EntityType<? extends LivingEntity> entityType, Level level) {
         super(entityType, level);
     }
-
-    @Shadow
-    public abstract @NotNull HumanoidArm getMainArm();
 
     @Unique
     private GameProfile profilelib$loginProfile;
