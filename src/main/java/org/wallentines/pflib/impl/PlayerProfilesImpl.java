@@ -1,8 +1,6 @@
 package org.wallentines.pflib.impl;
 
 import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
@@ -60,7 +58,6 @@ public class PlayerProfilesImpl {
         ProfilePatch existing = ext.getProfilePatch();
         ext.patchProfile(new ProfilePatch(existing.name(), Optional.empty()));
     }
-
 
     public static void updatePlayer(ServerPlayer spl) {
 

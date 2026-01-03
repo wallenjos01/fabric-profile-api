@@ -6,7 +6,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.execution.ExecutionContext;
 import net.minecraft.commands.execution.Frame;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.component.ResolvableProfile;
 import org.wallentines.pflib.api.PlayerProfiles;
@@ -16,7 +16,7 @@ public class Functions {
 
     public static void test(CommandSourceStack css,
                             CompoundTag tag,
-                            ResourceLocation id,
+                            Identifier id,
                             CommandDispatcher<CommandSourceStack> dispatcher,
                             ExecutionContext<CommandSourceStack> ctx,
                             Frame frame,
@@ -24,7 +24,7 @@ public class Functions {
 
         ServerPlayer spl = css.getPlayerOrException();
 
-        String name = tag == null ? "jeb_" : tag.getStringOr("name", "jeb_");
+        String name = tag == null ? "M1dnight_Ninja" : tag.getStringOr("name", "M1dnight_Ninja");
 
 
         ResolvableProfile.createUnresolved(name).resolveProfile(css.getServer().services().profileResolver()).thenAccept(rp -> {
@@ -38,7 +38,7 @@ public class Functions {
 
     public static void reset(CommandSourceStack css,
                             CompoundTag tag,
-                            ResourceLocation id,
+                            Identifier id,
                             CommandDispatcher<CommandSourceStack> dispatcher,
                             ExecutionContext<CommandSourceStack> ctx,
                             Frame frame,
